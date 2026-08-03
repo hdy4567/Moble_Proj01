@@ -1,27 +1,25 @@
-using System;
+﻿using System;
+using System.Collections;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Moble_Proj01
 {
-    public partial class Map_Data : Form
+    public class Map_Data 
     {   // 클라이언트 객체 생성
         private static readonly HttpClient httpClient = new HttpClient();
 
         public Map_Data()
         {
-            InitializeComponent();
-    // 폼 생성(실행) 시 즉시 비동기 메소드 실행시키는 문법 
+    
+            // 폼 생성(실행) 시 즉시 비동기 메소드 실행시키는 문법 
             _ = GetFlightDataAsync();
         }
-        double latitude; 
-        double longitude;
-
-
 
         // 데이터 받아오는 함수 시작하기 버튼과 연동시키는 걸 추천함.
         // 
@@ -40,26 +38,31 @@ namespace Moble_Proj01
 
 
 
+
         public async Task GetFlightDataAsync()
         {
             try
             {
-                textBox1.Text = "OpenSky API 호출 중 (한국 상공)...\r\n";
+                Console.WriteLine("호출중");
+
 
                 // 공식 REST API 스펙에 따른 Bounding Box 쿼리 파라미터 적용
                 string url = "https://opensky-network.org/api/states/all?lamin=33.0&lomin=124.5&lamax=38.5&lomax=131.5";
                 HttpResponseMessage response = await httpClient.GetAsync(url);
 
                 // [디버그 계층 1] 통신 상태 코드 확인
-                textBox1.AppendText($"[디버그] HTTP 응답 코드: {(int)response.StatusCode} {response.ReasonPhrase}\r\n");
+                Console.WriteLine($"[디버그] HTTP 응답 코드: {(int)response.StatusCode} {response.ReasonPhrase}\r\n");
+
 
                 response.EnsureSuccessStatusCode();
                 string jsonString = await response.Content.ReadAsStringAsync();
 
                 // [디버그 계층 2] 원본 데이터 길이 및 프리뷰(미리보기)
-                textBox1.AppendText($"[디버그] 수신된 데이터 길이: {jsonString.Length}자\r\n");
+                Console.WriteLine($"[디버그] 수신된 데이터 길이: {jsonString.Length}자\r\n");
+
                 string preview = jsonString.Length > 100 ? jsonString.Substring(0, 100) + "..." : jsonString;
-                textBox1.AppendText($"[디버그] 원본 데이터 요약: {preview}\r\n\r\n");
+                Console.WriteLine($"[디버그] 원본 데이터 요약: {preview}\r\n\r\n");
+
 
                 using (JsonDocument doc = JsonDocument.Parse(jsonString))
                 {
@@ -69,9 +72,12 @@ namespace Moble_Proj01
                         if (statesElement.ValueKind == JsonValueKind.Array)
                         {
                             int totalFlights = statesElement.GetArrayLength();
-                            textBox1.AppendText($"현재 상공의 총 항공기 수: {totalFlights}대\r\n\r\n");
+                            Console.WriteLine($"현재 상공의 총 항공기 수: {totalFlights}대\r\n\r\n ");
+
 
                             StringBuilder sb = new StringBuilder();
+
+
                             foreach (JsonElement state in statesElement.EnumerateArray())
                             {
                                 // 배열 인덱스: [0]icao24, [1]callsign, [5]longitude, [6]latitude, [10]true_track
@@ -91,24 +97,37 @@ namespace Moble_Proj01
                                     sb.AppendLine($"[데이터 누락] ID: {icao24} | 위치 정보 없음");
                                 }
                             }
-                            textBox1.AppendText(sb.ToString());
+
+                            Console.WriteLine($" {sb.ToString()} ");
+
+     
                         }
                         else
                         {
-                            textBox1.AppendText("[디버그] 에러: 'states' 속성이 배열(Array) 형태가 아닙니다.\r\n");
+                            Console.WriteLine("[디버그] 에러: 'states' 속성이 배열(Array) 형태가 아닙니다.\r\n");
                         }
                     }
                     else
                     {
-                        textBox1.AppendText("[디버그] 에러: JSON 데이터에 'states' 키가 없습니다. (요청 횟수 초과 등)\r\n");
+                        Console.WriteLine("[디버그] 에러: JSON 데이터에 'states' 키가 없습니다. (요청 횟수 초과 등)\r\n");
                     }
                 }
             }
             catch (Exception e)
             {
                 // 에러 메시지도 텍스트박스에 띄워서 원인을 바로 볼 수 있게 합니다.
-                textBox1.AppendText($"\r\n[에러 발생]: {e.Message}\r\n");
+                Console.WriteLine($"\r\n[에러 발생]: {e.Message}\r\n");
             }
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pictureBox1_Click_1(object sender, EventArgs e)
+        {
+
         }
     }
 }

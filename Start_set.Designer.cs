@@ -1,6 +1,6 @@
 ﻿namespace Moble_Proj01
 {
-    partial class Map_Data
+    partial class Start_set
     {
         /// <summary>
         /// Required designer variable.
@@ -28,31 +28,34 @@
         /// </summary>
         private void InitializeComponent()
         {
-            textBox1 = new TextBox();
+            button1 = new Button();
             SuspendLayout();
             // 
-            // textBox1
+            // button1
             // 
-            textBox1.Location = new Point(0, 0);
-            textBox1.Multiline = true;
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(209, 241);
-            textBox1.TabIndex = 0;
+            button1.BackColor = SystemColors.ActiveCaption;
+            button1.Font = new Font("맑은 고딕", 18F, FontStyle.Bold, GraphicsUnit.Point);
+            button1.Location = new Point(315, 341);
+            button1.Name = "button1";
+            button1.Size = new Size(142, 65);
+            button1.TabIndex = 0;
+            button1.Text = "시작";
+            button1.UseVisualStyleBackColor = false;
             // 
-            // Map_Data
+            // Start_set
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(textBox1);
-            Name = "Map_Data";
-            Text = "Map_Data";
+            Controls.Add(button1);
+            FormBorderStyle = FormBorderStyle.None;
+            Name = "Start_set";
+            Text = "Start_set";
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
 
-        private TextBox textBox1;
+        private Button button1;
     }
 }

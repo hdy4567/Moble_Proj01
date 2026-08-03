@@ -10,18 +10,11 @@ using System.Windows.Forms;
 
 namespace Moble_Proj01
 {
-    public partial class Airplain_Logics : Form
+    public partial class Start_set : Form
     {
-        public Airplain_Logics()
+        public Start_set()
         {
             InitializeComponent();
         }
-
-    //private class Airplain_move(double latitude, double longitude))
-    //{
-    //    Map_Data mp = new Map_Data();
-    //    mp.latitude 
-    //}
-}
-
+    }
 }
