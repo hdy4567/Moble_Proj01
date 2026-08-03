@@ -1,4 +1,4 @@
-﻿using GMap.NET;
+using GMap.NET;
 using GMap.NET.MapProviders;
 using GMap.NET.WindowsForms;
 using System;
@@ -19,6 +19,11 @@ namespace Moble_Proj01
         {
             InitializeComponent();
 
+            // User 정보 명시 (구글 맵 차단 방지)
+            //GMap.NET.MapProviders.GMapProvider.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+            // 서버 통신 모드
+            //GMap.NET.GMaps.Instance.Mode = GMap.NET.AccessMode.ServerAndCache;
+
             gMapControl1.MapProvider = GMapProviders.GoogleMap;
             gMapControl1.Position = new PointLatLng(37.5665, 126.9780);
             gMapControl1.Zoom = 12;
@@ -34,6 +39,8 @@ namespace Moble_Proj01
 
             //마우스 이벤트
             //{
+
+        
         private void gMapControl1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             //    // 더블클릭 시, 우선 10% 줌 인, 수치를 모르겠으므로 임시 설정.
@@ -84,13 +91,6 @@ namespace Moble_Proj01
             //    }
             //}
 
-
-            //// User 정보나 Referer 명시
-            //GMap.NET.MapProviders.GMapProvider.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
-            //// 서버 요청하기위해 본인 주소
-            //GMap.NET.GMaps.Instance.Mode = GMap.NET.AccessMode.ServerOnly;
-
-            gMapControl1.MapProvider = GMapProviders.GoogleMap;
             //gMapControl1.MapProvider = GMap.NET.MapProviders.GoogleMapProvider.Instance;
             //gMapControl1.MapProvider = GMap.NET.MapProviders.OpenCycleTransportMapProvider.Instance;
             //gMapControl1.MapProvider = GMap.NET.MapProviders.GoogleMapProvider.Instance;
@@ -103,7 +103,7 @@ namespace Moble_Proj01
 
         private void MapView_Load(object sender, EventArgs e)
         {
-
+            
         }
 
         private void gMapControl1_Load(object sender, EventArgs e)

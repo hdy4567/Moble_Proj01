@@ -34,17 +34,19 @@
             // textBox1
             // 
             textBox1.Location = new Point(0, 0);
+            textBox1.Margin = new Padding(4, 5, 4, 5);
             textBox1.Multiline = true;
             textBox1.Name = "textBox1";
-            textBox1.Size = new Size(320, 282);
+            textBox1.Size = new Size(455, 467);
             textBox1.TabIndex = 0;
             // 
             // MapView
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(1143, 750);
             Controls.Add(textBox1);
+            Margin = new Padding(4, 5, 4, 5);
             Name = "MapView";
             Text = "MapView";
             Load += MapView_Load;
