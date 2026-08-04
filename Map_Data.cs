@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
+using MySql.Data.MySqlClient; // 라이브러리 전처리 
+
+
+
 namespace Moble_Proj01
 {
     public class Map_Data 
@@ -37,7 +41,13 @@ namespace Moble_Proj01
         // @ 만약 진행도중 중간쯤에 ID 기반 실시간 업데이트도 해보기.  
 
 
+        // 3개 형태로 데이터 받아와서 성능비교.
 
+        // 객체 할당 Didctionary 자료구조로,
+        //private double ()
+        // 객체 할당 list 자료구조로,
+
+        // 객체할당 MySQL DB로, 
 
         public async Task GetFlightDataAsync()
         {
@@ -73,34 +83,38 @@ namespace Moble_Proj01
                         {
                             int totalFlights = statesElement.GetArrayLength();
                             Console.WriteLine($"현재 상공의 총 항공기 수: {totalFlights}대\r\n\r\n ");
-
-
-                            StringBuilder sb = new StringBuilder();
+                            List<DTO_flight> flight_List = new List<DTO_flight>();
 
 
                             foreach (JsonElement state in statesElement.EnumerateArray())
                             {
                                 // 배열 인덱스: [0]icao24, [1]callsign, [5]longitude, [6]latitude, [10]true_track
-                                string icao24 = state[0].GetString();
-                                string callsign = state[1].ValueKind == JsonValueKind.String ? state[1].GetString().Trim() : "N/A";
+                                string? icao24 = state[0].GetString();
+                                string? callsign = state[1].ValueKind == JsonValueKind.String ? state[1].GetString().Trim() : "N/A";
 
                                 if (state[6].ValueKind == JsonValueKind.Number && state[5].ValueKind == JsonValueKind.Number)
                                 {
                                     double latitude = state[6].GetDouble();
                                     double longitude = state[5].GetDouble();
                                     double trueTrack = state[10].ValueKind == JsonValueKind.Number ? state[10].GetDouble() : 0.0;
-
-                                    sb.AppendLine($"[{callsign}] ID: {icao24} | 위치: ({latitude:F4}, {longitude:F4}) | 방향: {trueTrack}도");
-                                }
-                                else
-                                {
-                                    sb.AppendLine($"[데이터 누락] ID: {icao24} | 위치 정보 없음");
+                                    
+                                    // 받아올 api를 클래스화한 DTO_flight를 리스트화 
+                                    // 검증 후 새 리스트 객체 할당.
+                                    flight_List.Add(new DTO_flight
+                                    {
+                                        icao24 = icao24,
+                                        callsign = callsign,
+                                        latitude = latitude,
+                                        longitude = longitude,
+                                        trueTrack = trueTrack
+                                    });
                                 }
                             }
+                            // 데이터 수 천개 들어오고, 리스트 -> 맵 람다식으로 구현
+                            Dictionary<string, DTO_flight> flight_dict = flight_List.ToDictionary(flight => flight.icao24);
 
-                            Console.WriteLine($" {sb.ToString()} ");
 
-     
+
                         }
                         else
                         {
@@ -120,6 +134,17 @@ namespace Moble_Proj01
             }
         }
 
+
+
+        public class DTO_flight
+        {
+            public string? icao24 { get; set; } // 배열이므로, 연결된 메모리가 없을 때의 상태를 null이라고 함.
+            public string? callsign { get; set; }
+            public double latitude { get; set; }
+            public double longitude { get; set; }
+            public double trueTrack { get; set; }
+        }
+
         private void pictureBox1_Click(object sender, EventArgs e)
         {
 
@@ -129,5 +154,9 @@ namespace Moble_Proj01
         {
 
         }
+
+
+
+
     }
 }

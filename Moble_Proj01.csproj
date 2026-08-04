@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="GMap.NET.WinForms" Version="2.1.7" />
+    <PackageReference Include="MySql.Data" Version="26.7.0" />
     <PackageReference Include="OpenSky" Version="1.1.0" />
   </ItemGroup>
 
