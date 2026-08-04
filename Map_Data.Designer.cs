@@ -2,6 +2,7 @@
 {
     partial class Map_Data
     {
+        
         /// <summary>
         /// Required designer variable.
         /// </summary>

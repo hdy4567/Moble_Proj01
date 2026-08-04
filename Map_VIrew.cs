@@ -1,6 +1,7 @@
-using GMap.NET;
+﻿using GMap.NET;
 using GMap.NET.MapProviders;
 using GMap.NET.WindowsForms;
+using GMap.NET.WindowsForms.Markers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,6 +16,9 @@ namespace Moble_Proj01
 {
     public partial class MapView : Form
     {
+        private GMapOverlay markerOverlay;
+        private Map_Data dataForm;
+
         public MapView()
         {
             InitializeComponent();
@@ -24,23 +28,48 @@ namespace Moble_Proj01
             // 서버 통신 모드
             //GMap.NET.GMaps.Instance.Mode = GMap.NET.AccessMode.ServerAndCache;
 
-            gMapControl1.MapProvider = GMapProviders.GoogleMap;
-            gMapControl1.Position = new PointLatLng(37.5665, 126.9780);
-            gMapControl1.Zoom = 12;
+            gMapControl2.MapProvider = GMapProviders.GoogleMap;
+            gMapControl2.Position = new PointLatLng(36.5, 127.5); // 대한민국 중심 좌표로 초기 위치 설정
+            gMapControl2.Zoom = 7; // 한국 전역이 보이도록 줌 설정
+
+            // 마커 오버레이 초기화 및 추가
+            markerOverlay = new GMapOverlay("flights");
+            gMapControl1.Overlays.Add(markerOverlay);
+
+            // 이벤트 구독
+            Map_Data.OnFlightDataUpdated += Map_Data_OnFlightDataUpdated;
         }
-            // Maxzoom = 24
-            // Dock = fill
 
+        private void Map_Data_OnFlightDataUpdated(List<Flight> flights)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action(() => Map_Data_OnFlightDataUpdated(flights)));
+                return;
+            }
 
-            // @ 시험안해봣음
-            //gMapControl1.CanDragMap = true;
+            markerOverlay.Markers.Clear();
 
+            foreach (var flight in flights)
+            {
+                PointLatLng point = new PointLatLng(flight.Latitude, flight.Longitude);
+                GMapMarker marker = new GMarkerGoogle(point, GMarkerGoogleType.red_small);
+                marker.ToolTipText = $"Callsign: {flight.Callsign}\nID: {flight.Icao24}\nTrack: {flight.TrueTrack}°";
+                marker.ToolTipMode = MarkerTooltipMode.OnMouseOver;
 
+                markerOverlay.Markers.Add(marker);
+            }
 
-            //마우스 이벤트
-            //{
+            gMapControl1.Refresh();
+        }
 
-        
+        private void MapView_Load(object sender, EventArgs e)
+        {
+            // Map_Data 폼을 생성하여 백그라운드 데이터 수신 구동
+            dataForm = new Map_Data();
+            dataForm.Show();
+        }
+
         private void gMapControl1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             //    // 더블클릭 시, 우선 10% 줌 인, 수치를 모르겠으므로 임시 설정.
@@ -101,14 +130,10 @@ namespace Moble_Proj01
 
         }
 
-        private void MapView_Load(object sender, EventArgs e)
-        {
-            
-        }
+
 
         private void gMapControl1_Load(object sender, EventArgs e)
         {
-
         }
     }
 }

@@ -17,11 +17,7 @@ namespace Moble_Proj01
             InitializeComponent();
         }
 
-    private class Airplain_move(double latitude, double longitude))
-    {
-        Map_Data mp = new Map_Data();
-        mp.latitude 
-    }
+
 }
 
 }

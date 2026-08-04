@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -11,6 +12,9 @@ namespace Moble_Proj01
     public partial class Map_Data : Form
     {   // 클라이언트 객체 생성
         private static readonly HttpClient httpClient = new HttpClient();
+
+        // 항공기 데이터 업데이트 이벤트 선언
+        public static event Action<List<Flight>> OnFlightDataUpdated;
 
         public Map_Data()
         {
@@ -72,6 +76,8 @@ namespace Moble_Proj01
                             textBox1.AppendText($"현재 상공의 총 항공기 수: {totalFlights}대\r\n\r\n");
 
                             StringBuilder sb = new StringBuilder();
+                            List<Flight> flights = new List<Flight>();
+
                             foreach (JsonElement state in statesElement.EnumerateArray())
                             {
                                 // 배열 인덱스: [0]icao24, [1]callsign, [5]longitude, [6]latitude, [10]true_track
@@ -85,6 +91,15 @@ namespace Moble_Proj01
                                     double trueTrack = state[10].ValueKind == JsonValueKind.Number ? state[10].GetDouble() : 0.0;
 
                                     sb.AppendLine($"[{callsign}] ID: {icao24} | 위치: ({latitude:F4}, {longitude:F4}) | 방향: {trueTrack}도");
+
+                                    flights.Add(new Flight
+                                    {
+                                        Icao24 = icao24,
+                                        Callsign = callsign,
+                                        Latitude = latitude,
+                                        Longitude = longitude,
+                                        TrueTrack = trueTrack
+                                    });
                                 }
                                 else
                                 {
@@ -92,6 +107,9 @@ namespace Moble_Proj01
                                 }
                             }
                             textBox1.AppendText(sb.ToString());
+
+                            // 이벤트 발행으로 MapView에 항공기 데이터 리스트 전달
+                            OnFlightDataUpdated?.Invoke(flights);
                         }
                         else
                         {
@@ -110,5 +128,15 @@ namespace Moble_Proj01
                 textBox1.AppendText($"\r\n[에러 발생]: {e.Message}\r\n");
             }
         }
+    }
+
+    // 항공기 정보를 담기 위한 클래스 정의
+    public class Flight
+    {
+        public string Icao24 { get; set; }
+        public string Callsign { get; set; }
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
+        public double TrueTrack { get; set; }
     }
 }
