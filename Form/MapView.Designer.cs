@@ -1,6 +1,7 @@
-﻿namespace Moble_Proj01
+﻿
+namespace Moble_Proj01.Form
 {
-    partial class Map_VIrew
+    partial class MapView
     {
         /// <summary>
         /// Required designer variable.
@@ -29,11 +30,16 @@
         private void InitializeComponent()
         {
             gMapControl1 = new GMap.NET.WindowsForms.GMapControl();
-            gMapControl2 = new GMap.NET.WindowsForms.GMapControl();
+            button1 = new Button();
+            button2 = new Button();
+            button3 = new Button();
+            button4 = new Button();
+            label2 = new Label();
             SuspendLayout();
             // 
             // gMapControl1
             // 
+            gMapControl1.BackColor = Color.Transparent;
             gMapControl1.Bearing = 0F;
             gMapControl1.CanDragMap = true;
             gMapControl1.Dock = DockStyle.Fill;
@@ -55,51 +61,75 @@
             gMapControl1.ScaleMode = GMap.NET.WindowsForms.ScaleModes.Integer;
             gMapControl1.SelectedAreaFillColor = Color.FromArgb(33, 65, 105, 225);
             gMapControl1.ShowTileGridLines = false;
-            gMapControl1.Size = new Size(800, 450);
+            gMapControl1.Size = new Size(1080, 619);
             gMapControl1.TabIndex = 0;
             gMapControl1.Zoom = 0D;
             // 
-            // gMapControl2
+            // button1
             // 
-            gMapControl2.Bearing = 0F;
-            gMapControl2.CanDragMap = true;
-            gMapControl2.EmptyTileColor = Color.Navy;
-            gMapControl2.GrayScaleMode = false;
-            gMapControl2.HelperLineOption = GMap.NET.WindowsForms.HelperLineOptions.DontShow;
-            gMapControl2.LevelsKeepInMemory = 5;
-            gMapControl2.Location = new Point(0, 0);
-            gMapControl2.MarkersEnabled = true;
-            gMapControl2.MaxZoom = 2;
-            gMapControl2.MinZoom = 2;
-            gMapControl2.MouseWheelZoomEnabled = true;
-            gMapControl2.MouseWheelZoomType = GMap.NET.MouseWheelZoomType.MousePositionAndCenter;
-            gMapControl2.Name = "gMapControl2";
-            gMapControl2.NegativeMode = false;
-            gMapControl2.PolygonsEnabled = true;
-            gMapControl2.RetryLoadTile = 0;
-            gMapControl2.RoutesEnabled = true;
-            gMapControl2.ScaleMode = GMap.NET.WindowsForms.ScaleModes.Integer;
-            gMapControl2.SelectedAreaFillColor = Color.FromArgb(33, 65, 105, 225);
-            gMapControl2.ShowTileGridLines = false;
-            gMapControl2.Size = new Size(225, 225);
-            gMapControl2.TabIndex = 1;
-            gMapControl2.Zoom = 0D;
+            button1.Location = new Point(793, 484);
+            button1.Name = "button1";
+            button1.Size = new Size(74, 72);
+            button1.TabIndex = 1;
+            button1.UseVisualStyleBackColor = true;
             // 
-            // Map_VIrew
+            // button2
+            // 
+            button2.Location = new Point(873, 484);
+            button2.Name = "button2";
+            button2.Size = new Size(74, 72);
+            button2.TabIndex = 2;
+            button2.UseVisualStyleBackColor = true;
+            // 
+            // button3
+            // 
+            button3.Location = new Point(953, 484);
+            button3.Name = "button3";
+            button3.Size = new Size(74, 72);
+            button3.TabIndex = 3;
+            button3.UseVisualStyleBackColor = true;
+            // 
+            // button4
+            // 
+            button4.Location = new Point(873, 404);
+            button4.Name = "button4";
+            button4.Size = new Size(74, 72);
+            button4.TabIndex = 4;
+            button4.UseVisualStyleBackColor = true;
+            // 
+            // label2
+            // 
+            label2.BackColor = Color.Transparent;
+            label2.Font = new Font("맑은 고딕", 18F, FontStyle.Bold, GraphicsUnit.Point);
+            label2.Location = new Point(43, 25);
+            label2.Name = "label2";
+            label2.Size = new Size(131, 51);
+            label2.TabIndex = 6;
+            // 
+            // MapView
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
-            Controls.Add(gMapControl2);
+            ClientSize = new Size(1080, 619);
+            Controls.Add(label2);
+            Controls.Add(button4);
+            Controls.Add(button3);
+            Controls.Add(button2);
+            Controls.Add(button1);
             Controls.Add(gMapControl1);
-            Name = "Map_VIrew";
-            Text = "Map_VIrew";
+            Name = "MapView";
+            Text = "MapView";
+            Load += MapView_Load;
             ResumeLayout(false);
         }
 
         #endregion
 
         private GMap.NET.WindowsForms.GMapControl gMapControl1;
-        private GMap.NET.WindowsForms.GMapControl gMapControl2;
+        private Button button1;
+        private Button button2;
+        private Button button3;
+        private Button button4;
+        private Label label2;
     }
 }

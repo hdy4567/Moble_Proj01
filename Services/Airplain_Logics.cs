@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -10,11 +10,14 @@ using System.Windows.Forms;
 
 namespace Moble_Proj01
 {
-    public partial class Start_set : Form
+    public partial class Airplain_Logics : System.Windows.Forms.Form
     {
-        public Start_set()
+        public Airplain_Logics()
         {
             InitializeComponent();
         }
-    }
+
+
+}
+
 }

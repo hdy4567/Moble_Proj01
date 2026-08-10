@@ -117,25 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="pictureBox1.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAAEAAAAAjCAMAAAAT1/wYAAAABGdBTUEAALGPC/xhBQAAAFFQTFRF6PH6
-        1t/p4er05O7309zm3ujxydLc3OXvzNXfz9ni2eLsxs/ZwszVv8jSvMXPaXF5dHuDsrW3ucLLWmJrl5yi
-        SVNeo6esfYSMNj9LiI+XJjA9tVCndgAAAvdJREFUSEttlunWqyAMRVE/lToBBpne/0HvSsJkb/lTcPXs
-        DECCuO/7uq7rPM/jOPZ9XxYp5QfHXzdwLaVclh3HcZ4niu77vgXpT9I3NWoGHNux0G+GEGNhAiIQ0JnP
-        chZvNAZr8oQpxY8jO8GAYp6Nk+Ft29Z1XedDmwEna4awH0Q4OAxR3EfzaJ3UJJ7neTRgJU7mDGGElBgG
-        OyF68ywv4nEcJxfUiZMCqYhKEDl8KXs5aggQA5iprIiRETURBGB9s87iaZxGHcDhhCG/CKLaZ31V05gh
-        gSsLZpQ4CkFQ/Jj8Ks//n6bpc4Wg3d/avqAXiGg+CM7fS08IIcQYIT3WmR0XlYBObJmw74fA/cP8ve0L
-        HKt6wuPMefPym8B7IVoA33oxKEDAZUZeFwKlsqRBlASyA71efAACOGPcnD90hOLC0gOyA6IAdoCgEbDm
-        D2JCBgWRd0IioIugty+EfZ6grDFO1k/FhRLDb0DO2Q0IcMZYUwnZhS6NP0JgH6TVKgOMtfdW7Zd9eHsw
-        fHmwGq8JANaZ28boDtqKAph7QLcLWT5eUWvtFXAOTPQxWvMh/3948L2NYnSaBgFwF7z2iLiY0B8Eufw4
-        SGLwynsE5Bw4r7X3Ptr5fwfoJPYujAjQigbuAljjLNK09xZvVc5AvU50mfrLOE3Taj0hGOCc9Uop7aOb
-        i745cAiqhnSb2k6O226shgBPgmg1KOWt2TeuK1Wfb2OuJ/2FxjCmaTujftLjdUh22XL0b/2yY0FpFfFd
-        UsQRPaRHQ0p6KAegVKRcmrEi1ZpMNbXVxNU9ykNIEFIK/vqqiaU5lKJaouiqsk1JKxVB6ZSS0neVU/5R
-        jwEQoHbFVtjXefQpKPCfbdtBPUq5rrWQ+8vy2akvlM723ZniAwB2nWc+Fa50t9aZSI+A2hszgiELbqRF
-        s1F7a2TXGvvueon2Onh192HYBnmfaPW8PgOZLurWGLE7v98XS31flBfCz+dB/z5oL5SKqG+U/EjheVFz
-        Z68vlH93oEnIPSr1iAAAAABJRU5ErkJggg==
-</value>
-  </data>
+  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <metadata name="ctm_hamburgerBtn.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>151, 22</value>
+  </metadata>
 </root>
