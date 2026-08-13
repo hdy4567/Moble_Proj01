@@ -81,13 +81,13 @@ namespace Moble_Proj01.Data
 
                     string jsonString = await response.Content.ReadAsStringAsync();
 
-                    // [디버그 계층 2] 원본 데이터 길이 및 프리뷰(미리보기)
-                    Console.WriteLine($"[디버그] 수신된 데이터 길이: {jsonString.Length}자\r\n");
+                    // [디버그 계층] 원본 데이터 길이 및 프리뷰(미리보기)
+                    //Console.WriteLine($"[디버그] 수신된 데이터 길이: {jsonString.Length}자\r\n");
 
-                    string preview = jsonString.Length > 100 ? jsonString.Substring(0, 100) + "..." : jsonString;
-                    Console.WriteLine($"[디버그] 원본 데이터 요약: {preview}\r\n\r\n");
+                    //string preview = jsonString.Length > 100 ? jsonString.Substring(0, 100) + "..." : jsonString;
+                    //Console.WriteLine($"[디버그] 원본 데이터 요약: {preview}\r\n\r\n");
 
-                    // 수행 시 메모리 꺼주기 
+                    // async 수행 후 메모리 꺼주기 
                     using (JsonDocument doc = JsonDocument.Parse(jsonString))
                     {
                         // 타입을 모르는 JSON 데이터를 안전하게 처리하기 위해, JsonDocument를 사용하여 JSON 구조를 탐색
@@ -105,9 +105,9 @@ namespace Moble_Proj01.Data
 
                                 // api 디버깅용 자료구조
                                 StringBuilder sb = new StringBuilder();
+
                                 // 제어용 중간 산출물 자료구조 선언, 키 값을 받지 못했으므로, 
                                 // 키 값 받고나서, 제어용 딕셔너리 자료구조로 변환 및 선언 
-                                // 맨 처음
                                 List<DTO_flight> flight_list = new List<DTO_flight>();
 
                                 foreach (JsonElement state in statesElement.EnumerateArray())
@@ -118,18 +118,15 @@ namespace Moble_Proj01.Data
 
                                     // if 보단 스위치식 상태머신 패턴을 쓰고 싶은데, 
                                     // 스위치 상태머신에 인자로 넣어주려면, 하나로 묶어 주어야 하고,
-                                    // 변수를 C언어식으로 하나로 묶어주고 싶으면서, 간단하게 
-                                    // 짜고 싶다면 구조체가 아닌, 
+                                    // 변수를 C언어식으로 하나로 묶어주고 싶으면서, 간단하게 짜고 싶다면 구조체가 아닌, 
                                     // var 타입 + 튜플 문법을 쓰면, 구현 가능함. 
 
 
-                                    // 튜플 객체 생성으로, 성능은 if대비 구려져도, 두 개의 상태 데이터 맥락을 하나로 묶어주고, 스위치 문법에 인자로 넣어줄 수 있게 됌.
+                                    // 튜플 객체 생성으로, 성능은 if 대비 약간 구려져도, 
+                    // 두 개의 상태 데이터 맥락을 하나로 묶어주고, 스위치 문법에 인자로 넣어줄 수 있게 됌.
                                     // if ( xy_state == (JsonValueKind.Number, JsonValueKind.Number))
                                     //if (state[6].ValueKind == JsonValueKind.Number && state[5].ValueKind == JsonValueKind.Number)
                                     //if (xy_state.Item1 == JsonValueKind.Number && xy_state.Item2 == JsonValueKind.Number)
-
-
-
                                     var xy_state = (state[5].ValueKind, state[6].ValueKind);
                                     switch (xy_state)
                                     {
@@ -157,7 +154,7 @@ namespace Moble_Proj01.Data
                                 }
 
                                 // 디버깅이나 로그 출력용 
-                                Console.WriteLine(sb.ToString());
+                                //Console.WriteLine(sb.ToString());
                                 // 모든 데이터 처리가 끝난 후(루프 외부) 최종 출력 및 이벤트 발행
                                 Dictionary<string, DTO_flight> flight_Dict = flight_list.ToDictionary(f => f.icao24, f => f);
                                 OnFlightDataUpdated?.Invoke(flight_Dict);
@@ -180,7 +177,7 @@ namespace Moble_Proj01.Data
                     Console.WriteLine($"\r\n[에러 발생]: {e.Message}\r\n");
                 }
 
-                // 10초 대기 후 다음 주기 실행
+                // while과 연동, 10초 대기 후 다음 주기 실행
                 await Task.Delay(10000);
             }
         }

@@ -48,6 +48,7 @@ namespace Moble_Proj01.Form
             gMapControl1.HelperLineOption = GMap.NET.WindowsForms.HelperLineOptions.DontShow;
             gMapControl1.LevelsKeepInMemory = 5;
             gMapControl1.Location = new Point(0, 0);
+            gMapControl1.Margin = new Padding(2, 2, 2, 2);
             gMapControl1.MarkersEnabled = true;
             gMapControl1.MaxZoom = 2;
             gMapControl1.MinZoom = 2;
@@ -61,39 +62,43 @@ namespace Moble_Proj01.Form
             gMapControl1.ScaleMode = GMap.NET.WindowsForms.ScaleModes.Integer;
             gMapControl1.SelectedAreaFillColor = Color.FromArgb(33, 65, 105, 225);
             gMapControl1.ShowTileGridLines = false;
-            gMapControl1.Size = new Size(1080, 619);
+            gMapControl1.Size = new Size(827, 411);
             gMapControl1.TabIndex = 0;
             gMapControl1.Zoom = 0D;
             // 
             // button1
             // 
-            button1.Location = new Point(793, 484);
+            button1.Location = new Point(555, 290);
+            button1.Margin = new Padding(2, 2, 2, 2);
             button1.Name = "button1";
-            button1.Size = new Size(74, 72);
+            button1.Size = new Size(52, 43);
             button1.TabIndex = 1;
             button1.UseVisualStyleBackColor = true;
             // 
             // button2
             // 
-            button2.Location = new Point(873, 484);
+            button2.Location = new Point(611, 290);
+            button2.Margin = new Padding(2, 2, 2, 2);
             button2.Name = "button2";
-            button2.Size = new Size(74, 72);
+            button2.Size = new Size(52, 43);
             button2.TabIndex = 2;
             button2.UseVisualStyleBackColor = true;
             // 
             // button3
             // 
-            button3.Location = new Point(953, 484);
+            button3.Location = new Point(667, 290);
+            button3.Margin = new Padding(2, 2, 2, 2);
             button3.Name = "button3";
-            button3.Size = new Size(74, 72);
+            button3.Size = new Size(52, 43);
             button3.TabIndex = 3;
             button3.UseVisualStyleBackColor = true;
             // 
             // button4
             // 
-            button4.Location = new Point(873, 404);
+            button4.Location = new Point(611, 243);
+            button4.Margin = new Padding(2, 2, 2, 2);
             button4.Name = "button4";
-            button4.Size = new Size(74, 72);
+            button4.Size = new Size(52, 43);
             button4.TabIndex = 4;
             button4.UseVisualStyleBackColor = true;
             // 
@@ -101,22 +106,24 @@ namespace Moble_Proj01.Form
             // 
             label2.BackColor = Color.Transparent;
             label2.Font = new Font("맑은 고딕", 18F, FontStyle.Bold, GraphicsUnit.Point);
-            label2.Location = new Point(43, 25);
+            label2.Location = new Point(30, 15);
+            label2.Margin = new Padding(2, 0, 2, 0);
             label2.Name = "label2";
-            label2.Size = new Size(131, 51);
+            label2.Size = new Size(92, 31);
             label2.TabIndex = 6;
             // 
             // MapView
             // 
-            AutoScaleDimensions = new SizeF(10F, 25F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1080, 619);
+            ClientSize = new Size(827, 411);
             Controls.Add(label2);
             Controls.Add(button4);
             Controls.Add(button3);
             Controls.Add(button2);
             Controls.Add(button1);
             Controls.Add(gMapControl1);
+            Margin = new Padding(2, 2, 2, 2);
             Name = "MapView";
             Text = "MapView";
             Load += MapView_Load;

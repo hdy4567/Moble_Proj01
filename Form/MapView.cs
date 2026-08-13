@@ -1,9 +1,9 @@
 using GMap.NET;
 using GMap.NET.MapProviders;
+using GMap.NET.Projections;
 using GMap.NET.WindowsForms;
 using GMap.NET.WindowsForms.Markers;
-
-
+using Moble_Proj01.Data; // 데이터 폴더 참조
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,10 +12,10 @@ using System.Data;
 using System.Data.Entity.Migrations.Model;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Moble_Proj01.Data; // 데이터 폴더 참조
 
 
 namespace Moble_Proj01.Form
@@ -25,8 +25,25 @@ namespace Moble_Proj01.Form
         private GMapOverlay markerOverlay;
         private Map_Data dataForm;
         private Dictionary<string, DTO_flight> flight_Dict = new Dictionary<string, DTO_flight>();
-        private Bitmap others_png = new Bitmap(@"C:\Users\함동윤\source\repos\hdy4567\Moble_Proj01\assets\others.png");
-        private Bitmap main_png = new Bitmap(@"C:\Users\함동윤\source\repos\hdy4567\Moble_Proj01\assets\main.png");
+
+
+
+        //private Bitmap others_png = new Bitmap(@"C:\Users\moble\source\repos\hdy4567\Moble_Proj01\assets\main.png");
+        //private Bitmap main_png = new Bitmap(@"C:\Users\함동윤\source\repos\hdy4567\Moble_Proj01\assets\main.png");
+        //C:\Users\moble\source\repos\hdy4567\Moble_Proj01\Resources\others.png
+
+        // 상대 경로로 수정.
+        private Bitmap others = Properties.Resources.others;
+        private Bitmap main = Properties.Resources.others;
+        
+
+        
+
+
+
+
+
+
 
         private PointLatLng center = new PointLatLng(37.5665, 126.9780);
 
@@ -34,12 +51,13 @@ namespace Moble_Proj01.Form
 
         // 방향 데이터 저장 전역변수
         private float mainAngle = 0f;
+        // 점수 전역 
         private int score = 0;
 
-        // 🎯 파괴된 비행기 ID를 보관하여 API 스레드가 좀비처럼 부활시키는 것을 원천 차단
+
+        //  파괴된 비행기 ID를 보관
         private HashSet<string> destroyedFlights = new HashSet<string>();
 
-        // 🎯 점수가 변할 때 자동으로 라벨이 동기화되는 OOP 프로퍼티 설계
         private int Score
         {
             get => score;
@@ -57,8 +75,12 @@ namespace Moble_Proj01.Form
         {
             InitializeComponent();
 
-            // MapView
-            this.gMapControl1.MapProvider = GMapProviders.GoogleMap;
+
+
+
+
+
+            this.gMapControl1.MapProvider = CartoDBDarkMatterProvider.Instance;
             this.gMapControl1.Position = center;
             this.gMapControl1.MaxZoom = 24;
             this.gMapControl1.Zoom = 7;
@@ -66,6 +88,22 @@ namespace Moble_Proj01.Form
             this.gMapControl1.MouseWheelZoomType = MouseWheelZoomType.MousePositionWithoutCenter;
             this.gMapControl1.MouseWheelZoomEnabled = true;
             this.gMapControl1.DragButton = MouseButtons.Left;
+
+            // 개발 단계 확인용: 프로젝트 폴더 하위의 Properties\MapCache를 가리키도록 설정
+            string cachePath = System.IO.Path.Combine(Application.StartupPath, "..", "..", "..", "Properties", "MapCache");
+            if (!System.IO.Directory.Exists(cachePath))
+            {
+                System.IO.Directory.CreateDirectory(cachePath);
+            }
+            this.gMapControl1.CacheLocation = cachePath;
+            // 로컬 캐시가 이미 존재한다면 인터넷 다운로드 없이 캐시 타일을 먼저 사용하도록 설정
+            GMap.NET.GMaps.Instance.Mode = GMap.NET.AccessMode.ServerAndCache;
+
+            // 프로그램 종료 시, 
+
+            // 에러를 유발하는 구글 맵 스타일 코드 제거
+
+
 
 
             // 가장 중앙점 이름 재활용과 부모 자원을 지원받으면서, 인자만 바꾸고 싶음.
@@ -147,13 +185,13 @@ namespace Moble_Proj01.Form
 
             foreach (var flight in flight_Dict.Values)
             {
-                // 🎯 이미 파괴된 블랙리스트 비행기는 API로 새로 들어와도 그리거나 딕셔너리에 넣지 않고 패스!
+                //  이미 파괴된 블랙리스트 비행기는 API로 새로 들어와도 그리거나 딕셔너리에 넣지 않고 패스!
                 if (destroyedFlights.Contains(flight.icao24)) continue;
 
                 PointLatLng point = new PointLatLng(flight.Latitude, flight.Longitude);
 
                 // OpenSky API의 침로(TrueTrack) 각도를 회전 각도로 전달하여 사용자 지정 회전 마커 생성
-                GMapMarker marker = new GMapMarkerRotated(point, others_png, (float)flight.TrueTrack);
+                GMapMarker marker = new GMapMarkerRotated(point, others, (float)flight.TrueTrack);
 
                 // 충돌 감지 식별용 태그
                 marker.Tag = flight.icao24;
@@ -283,8 +321,8 @@ namespace Moble_Proj01.Form
 
             // 전투기 배경 누끼따기 (흰색 배경 제거), 
             // 흰색 배경을 투명처리 해주는 함수이므로, 누끼 따주는 작업 필수임. 그레이색이여도 아마 안됌
-            others_png.MakeTransparent(Color.White);
-            main_png.MakeTransparent(Color.White);
+            others.MakeTransparent(Color.White);
+            main.MakeTransparent(Color.White);
 
             // 비트맵 매인 객체 창 크기 기준 가로 50%, 세로 50%의 정확한 정중앙이라는 중심축 배치
             gMapControl1.Paint += (s, pe) =>
@@ -308,7 +346,7 @@ namespace Moble_Proj01.Form
                 }
 
                 pe.Graphics.RotateTransform(mainAngle);  // e.ketcode 키보드 입력값에 따라 방향 회전
-                pe.Graphics.DrawImage(main_png, -main_png.Width / 2f, -main_png.Height / 2f); // 이미지의 중심을 (cx, cy)에 맞춤
+                pe.Graphics.DrawImage(main, -main.Width / 2f, -main.Height / 2f); // 이미지의 중심을 (cx, cy)에 맞춤
                 pe.Graphics.ResetTransform();   // 지도가 삐뚤어지기 전으로 회복
 
                 // 3. 제거한 기체 점수(Score) 화면 좌측 상단에 렌더링
@@ -345,14 +383,14 @@ namespace Moble_Proj01.Form
             {
                 flight_Dict.Remove(key);
             }
-            Score += toRemoveKeys.Count; // 🎯 프로퍼티 호출로 score 누적 및 라벨 자동 동기화!
+            Score += toRemoveKeys.Count; //  프로퍼티 호출 score 누적 
 
             // 4. 마커 동기화 및 화면 갱신
             markerOverlay.Markers.Clear();
             foreach (var flight in flight_Dict.Values)
             {
                 PointLatLng point = new PointLatLng(flight.Latitude, flight.Longitude);
-                GMapMarker marker = new GMapMarkerRotated(point, others_png, (float)flight.TrueTrack);
+                GMapMarker marker = new GMapMarkerRotated(point, others, (float)flight.TrueTrack);
                 marker.Tag = flight.icao24;
                 marker.ToolTipText = $"Callsign: {flight.Callsign}\nID: {flight.icao24}\nTrack: {flight.TrueTrack}°";
                 marker.ToolTipMode = MarkerTooltipMode.OnMouseOver;
@@ -360,6 +398,10 @@ namespace Moble_Proj01.Form
             }
             gMapControl1.Refresh();
         }
+
+
+
+
 
         private void gMapControl2_Load(object sender, EventArgs e)
         {
@@ -392,8 +434,6 @@ namespace Moble_Proj01.Form
 
             // 마커 사이즈 지정
             Size = new Size(others.Width, others.Height);
-
-            // 마커의 중심점이 위경도 지점에 일치하도록 오프셋 정렬
             Offset = new Point(-Size.Width / 2, -Size.Height / 2);
         }
 
@@ -410,6 +450,42 @@ namespace Moble_Proj01.Form
 
             // 4. 도화지 원점 매트릭스 리셋
             g.ResetTransform();
+        }
+    }
+
+    /// <summary>
+    /// CartoDB Dark Matter 타일 맵을 요청하는 커스텀 GMap 프로바이더 클래스입니다.
+    /// </summary>
+    public class CartoDBDarkMatterProvider : GMapProvider
+    {
+        public static readonly CartoDBDarkMatterProvider Instance;
+
+        static CartoDBDarkMatterProvider()
+        {
+            Instance = new CartoDBDarkMatterProvider();
+        }
+
+        private CartoDBDarkMatterProvider()
+        {
+            RefererUrl = "https://carto.com/";
+        }
+
+        public override Guid Id { get; } = new Guid("9E4E2C7B-647C-4C67-AF21-DC814E7374CC");
+
+        public override string Name { get; } = "CartoDarkMyMap";
+
+        public override PureProjection Projection => MercatorProjection.Instance;
+
+        public override GMapProvider[] Overlays => new GMapProvider[] { this };
+
+        public override PureImage GetTileImage(GPoint pos, int zoom)
+        {
+            // CartoDB Dark Matter 스타일의 타일 리소스 URL
+            // {s} 위치는 부하 분산을 위해 a, b, c, d 서버 중 하나를 임의 지정합니다.
+            string sub = "abcd"[(int)((pos.X + pos.Y) % 4)].ToString();
+            string url = $"https://{sub}.basemaps.cartocdn.com/rastertiles/dark_all/{zoom}/{pos.X}/{pos.Y}.png";
+
+            return GetTileImageUsingHttp(url);
         }
     }
 }

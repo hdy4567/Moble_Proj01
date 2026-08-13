@@ -28,7 +28,7 @@ namespace Moble_Proj01.Form
                 form.FormClosed += (s, e) => Application.Exit();
             }
 
-            Application.Run(Forms[0]);
+            Application.Run(Forms[2]);
         }
     }
 }
