@@ -25,7 +25,11 @@ namespace Moble_Proj01.Form
             // 창 닫히는 이벤트 수신해서, 메모리 누수 방지 및 좀비 프로세스 방지 
             foreach (var form in Forms)
             {
-                form.FormClosed += (s, e) => Application.Exit();
+                form.FormClosed += (s, e) =>
+                {
+                    Application.Exit();
+                    System.Diagnostics.Process.GetCurrentProcess().Kill();
+                };
             }
 
             Application.Run(Forms[2]);

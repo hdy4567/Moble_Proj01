@@ -34,10 +34,10 @@ namespace Moble_Proj01.Form
 
         // 상대 경로로 수정.
         private Bitmap others = Properties.Resources.others;
-        private Bitmap main = Properties.Resources.others;
-        
+        private Bitmap main = Properties.Resources.main;
 
-        
+
+
 
 
 
@@ -65,9 +65,7 @@ namespace Moble_Proj01.Form
             {
                 score = value;
                 if (label2 != null)
-                {
                     label2.Text = $"Score: {score}";
-                }
             }
         }
 
@@ -75,12 +73,14 @@ namespace Moble_Proj01.Form
         {
             InitializeComponent();
 
+            // OSM 타일 서버 차단 방지용 UserAgent 설정 (반드시 타일 다운로드 요청 전에 설정되어야 함)
+            GMapProvider.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) GMap.NET/1.0";
+
+            // 1. 입체 산악 릴리프/음영 특화 GoogleTerrainMapProvider 사용
+            // this.gMapControl1.MapProvider = GMap.NET.MapProviders.GoogleTerrainMapProvider.Instance;
+            this.gMapControl1.MapProvider = GMap.NET.MapProviders.OpenStreetMapProvider.Instance;
 
 
-
-
-
-            this.gMapControl1.MapProvider = CartoDBDarkMatterProvider.Instance;
             this.gMapControl1.Position = center;
             this.gMapControl1.MaxZoom = 24;
             this.gMapControl1.Zoom = 7;
@@ -89,21 +89,33 @@ namespace Moble_Proj01.Form
             this.gMapControl1.MouseWheelZoomEnabled = true;
             this.gMapControl1.DragButton = MouseButtons.Left;
 
-            // 개발 단계 확인용: 프로젝트 폴더 하위의 Properties\MapCache를 가리키도록 설정
+            // 프로젝트 폴더 하위의 Properties\MapCache를 가리키도록 설정
             string cachePath = System.IO.Path.Combine(Application.StartupPath, "..", "..", "..", "Properties", "MapCache");
             if (!System.IO.Directory.Exists(cachePath))
             {
                 System.IO.Directory.CreateDirectory(cachePath);
             }
             this.gMapControl1.CacheLocation = cachePath;
+
             // 로컬 캐시가 이미 존재한다면 인터넷 다운로드 없이 캐시 타일을 먼저 사용하도록 설정
             GMap.NET.GMaps.Instance.Mode = GMap.NET.AccessMode.ServerAndCache;
 
+            // 2. 반전 모드 해제 (흰색 탈색 방지)
+            this.gMapControl1.NegativeMode = true;
+
+            // 3. 입체 산악 색감을 살리는 딥 톤 & 그린/블루 살리기 ColorMatrix
+            this.gMapControl1.ColorMatrix = new System.Drawing.Imaging.ColorMatrix(new float[][]
+            {
+                new float[] { 0.85f, 0.0f,  0.0f,  0.0f, 0.0f },
+                new float[] { 0.0f,  1.15f, 0.0f,  0.0f, 0.0f },
+                new float[] { 0.0f,  0.0f,  0.9f,  0.0f, 0.0f },
+                new float[] { 0.0f,  0.0f,  0.0f,  1.0f, 0.0f },
+                new float[] { -0.3f, -0.3f, -0.3f, 0.0f, 1.0f }
+                // 5번째 배열의 4번쨰 요소는 투명도, 5번째는 고정값
+            });
+
+
             // 프로그램 종료 시, 
-
-            // 에러를 유발하는 구글 맵 스타일 코드 제거
-
-
 
 
             // 가장 중앙점 이름 재활용과 부모 자원을 지원받으면서, 인자만 바꾸고 싶음.
@@ -164,6 +176,15 @@ namespace Moble_Proj01.Form
 
 
         }
+
+
+
+
+
+
+
+
+
 
         /// <summary>
         /// Map_Data 폼에서 실시간으로 업데이트되는 비행기 데이터를 받아와서 마커를 갱신하는 이벤트 핸들러
@@ -453,39 +474,5 @@ namespace Moble_Proj01.Form
         }
     }
 
-    /// <summary>
-    /// CartoDB Dark Matter 타일 맵을 요청하는 커스텀 GMap 프로바이더 클래스입니다.
-    /// </summary>
-    public class CartoDBDarkMatterProvider : GMapProvider
-    {
-        public static readonly CartoDBDarkMatterProvider Instance;
 
-        static CartoDBDarkMatterProvider()
-        {
-            Instance = new CartoDBDarkMatterProvider();
-        }
-
-        private CartoDBDarkMatterProvider()
-        {
-            RefererUrl = "https://carto.com/";
-        }
-
-        public override Guid Id { get; } = new Guid("9E4E2C7B-647C-4C67-AF21-DC814E7374CC");
-
-        public override string Name { get; } = "CartoDarkMyMap";
-
-        public override PureProjection Projection => MercatorProjection.Instance;
-
-        public override GMapProvider[] Overlays => new GMapProvider[] { this };
-
-        public override PureImage GetTileImage(GPoint pos, int zoom)
-        {
-            // CartoDB Dark Matter 스타일의 타일 리소스 URL
-            // {s} 위치는 부하 분산을 위해 a, b, c, d 서버 중 하나를 임의 지정합니다.
-            string sub = "abcd"[(int)((pos.X + pos.Y) % 4)].ToString();
-            string url = $"https://{sub}.basemaps.cartocdn.com/rastertiles/dark_all/{zoom}/{pos.X}/{pos.Y}.png";
-
-            return GetTileImageUsingHttp(url);
-        }
-    }
 }
