@@ -20,11 +20,13 @@ using System.Windows.Forms;
 
 namespace Moble_Proj01.Form
 {
+
     public partial class MapView : System.Windows.Forms.Form
     {
         private GMapOverlay markerOverlay;
         private Map_Data dataForm;
         private Dictionary<string, DTO_flight> flight_Dict = new Dictionary<string, DTO_flight>();
+        private RTreeNode rtreeRoot = new RTreeNode(new RTreeRect(-90, 90, -180, 180));
 
 
 
@@ -36,7 +38,14 @@ namespace Moble_Proj01.Form
         private Bitmap others = Properties.Resources.others;
         private Bitmap main = Properties.Resources.main;
 
-
+        /// <summary>
+        /// 마우스/마우스휠을 통한 지도 줌 기능(확대/축소)의 활성화 여부를 제어하는 메서드입니다.
+        /// </summary>
+        /// <param name="enable">true일 경우 마우스 줌 가능 모드, false일 경우 마우스 줌 불가능 모드</param>
+        public void SetZoomMode(bool enable)
+        {
+            this.gMapControl1.MouseWheelZoomEnabled = enable;
+        }
 
 
 
@@ -65,7 +74,7 @@ namespace Moble_Proj01.Form
             {
                 score = value;
                 if (label2 != null)
-                    label2.Text = $"Score: {score}";
+                    label2.Text = $"Count: {score}";
             }
         }
 
@@ -80,13 +89,14 @@ namespace Moble_Proj01.Form
             // this.gMapControl1.MapProvider = GMap.NET.MapProviders.GoogleTerrainMapProvider.Instance;
             this.gMapControl1.MapProvider = GMap.NET.MapProviders.OpenStreetMapProvider.Instance;
 
-
             this.gMapControl1.Position = center;
             this.gMapControl1.MaxZoom = 24;
             this.gMapControl1.Zoom = 7;
 
             this.gMapControl1.MouseWheelZoomType = MouseWheelZoomType.MousePositionWithoutCenter;
-            this.gMapControl1.MouseWheelZoomEnabled = true;
+            SetZoomMode(false);
+
+
             this.gMapControl1.DragButton = MouseButtons.Left;
 
             // 프로젝트 폴더 하위의 Properties\MapCache를 가리키도록 설정
@@ -202,6 +212,16 @@ namespace Moble_Proj01.Form
             // 참조 주소 보관
             this.flight_Dict = flight_Dict;
 
+            // 실시간 수신된 데이터를 바탕으로 전역 공간 인덱스 R-Tree를 재빌드합니다.
+            rtreeRoot = new RTreeNode(new RTreeRect(-90, 90, -180, 180));
+            foreach (var flight in flight_Dict.Values)
+            {
+                rtreeRoot.Insert(flight);
+            }
+
+            // 새로운 위치 데이터 수신 즉시 실시간 충돌 검사 수행
+            Bumffercar();
+
             markerOverlay.Markers.Clear();
 
             foreach (var flight in flight_Dict.Values)
@@ -281,50 +301,47 @@ namespace Moble_Proj01.Form
             // 줌 레벨에 따라 쾌적하게 미끄러지듯 스크롤되도록 동적 밸런싱 스텝 공식 적용
             // (step_size가 3이나 10처럼 크면 한 번에 330km를 순간이동하므로 지도가 로딩되지 않아 멈춘 것처럼 보입니다.)
             double step_size = 0.03 / Math.Pow(2, gMapControl1.Zoom - 7);
+            bool positionChanged = false;
 
-            if (e.KeyCode == Keys.Right)
+            switch (e.KeyCode)
             {
-                gMapControl1.Position = new PointLatLng(gMapControl1.Position.Lat, gMapControl1.Position.Lng + step_size);
-                button4.Focus();
-                mainAngle = 90f; // 동쪽 회전
-                e.Handled = true;
-                gMapControl1.Refresh(); // 함수로 업데이트 값 UI 반영 
-            }
-            if (e.KeyCode == Keys.Left)
-            {
-                gMapControl1.Position = new PointLatLng(gMapControl1.Position.Lat, gMapControl1.Position.Lng - step_size);
-                button3.Focus();
-                mainAngle = 270f; // 서쪽 회전
-                e.Handled = true;
-                gMapControl1.Refresh();
-            }
-            if (e.KeyCode == Keys.Up)
-            {
-                gMapControl1.Position = new PointLatLng(gMapControl1.Position.Lat + step_size, gMapControl1.Position.Lng);
-                button1.Focus();
-                mainAngle = 0f; // 북쪽 회전
-                e.Handled = true;
-                gMapControl1.Refresh();
-            }
-            if (e.KeyCode == Keys.Down)
-            {
-                gMapControl1.Position = new PointLatLng(gMapControl1.Position.Lat - step_size, gMapControl1.Position.Lng);
-                button2.Focus();
-                mainAngle = 180f; // 남쪽 회전
-                e.Handled = true;
-                gMapControl1.Refresh();
+                case Keys.Right:
+                    gMapControl1.Position = new PointLatLng(gMapControl1.Position.Lat, gMapControl1.Position.Lng + step_size);
+                    button4.Focus();
+                    mainAngle = 90f; // 동쪽 회전
+
+
+                    positionChanged = true;
+                    break;
+
+                case Keys.Left:
+                    gMapControl1.Position = new PointLatLng(gMapControl1.Position.Lat, gMapControl1.Position.Lng - step_size);
+                    button3.Focus();
+                    mainAngle = 270f; // 서쪽 회전
+                    positionChanged = true;
+                    break;
+
+                case Keys.Up:
+                    gMapControl1.Position = new PointLatLng(gMapControl1.Position.Lat + step_size, gMapControl1.Position.Lng);
+                    button1.Focus();
+                    mainAngle = 0f; // 북쪽 회전
+                    positionChanged = true;
+                    break;
+
+                case Keys.Down:
+                    gMapControl1.Position = new PointLatLng(gMapControl1.Position.Lat - step_size, gMapControl1.Position.Lng);
+                    button2.Focus();
+                    mainAngle = 180f; // 남쪽 회전
+                    positionChanged = true;
+                    break;
+
+
             }
 
-            // 폼 전환 처리 (방향키와 겹치지 않게 Enter / Backspace 키 적용)
-            if (e.KeyCode == Keys.Enter)
+            if (positionChanged)
             {
-                Program.Forms[2].Show();
-                this.Hide();
-            }
-            else if (e.KeyCode == Keys.Back)
-            {
-                Program.Forms[0].Show();
-                this.Hide();
+                e.Handled = true;
+                gMapControl1.Refresh();
             }
 
             // 기체에 라운드 값 주고, 이동 시 즉각 경량 충돌 검사 수행
@@ -360,18 +377,37 @@ namespace Moble_Proj01.Form
 
                 pe.Graphics.TranslateTransform(flight_x, flight_y); // 중심축
 
-                // 2. 0.3 범위 반경 원 그리기 (반투명 빨간색)
-                using (Pen rangePen = new Pen(Color.FromArgb(100, Color.Red), 2))
+                // 2. 0.3 범위 반경 원통형 그리기 (보라색 입체 원통 모델 시각화)
+                int opacity = 60; // 투명도
+                Color purple = Color.FromArgb(opacity, 147, 51, 234); // 보라색
+                Color deepPurple = Color.FromArgb(opacity + 40, 107, 33, 168); // 짙은 보라 테두리
+
+                // 원통의 높이(두께)
+                float cylinderHeight = 15f;
+
+                // 아래쪽 원 (밑면)
+                using (SolidBrush bottomBrush = new SolidBrush(purple))
+                using (Pen borderPen = new Pen(deepPurple, 1.5f))
                 {
-                    pe.Graphics.DrawEllipse(rangePen, -pixelRange, -pixelRange, pixelRange * 2, pixelRange * 2);
+                    // 밑면 채우기
+                    pe.Graphics.FillEllipse(bottomBrush, -pixelRange, -pixelRange + cylinderHeight, pixelRange * 2, pixelRange * 2);
+                    pe.Graphics.DrawEllipse(borderPen, -pixelRange, -pixelRange + cylinderHeight, pixelRange * 2, pixelRange * 2);
+
+                    // 원통의 옆면 입체감 시각화 (좌우측 끝 수직선 연결)
+                    pe.Graphics.DrawLine(borderPen, -pixelRange, 0f, -pixelRange, cylinderHeight);
+                    pe.Graphics.DrawLine(borderPen, pixelRange, 0f, pixelRange, cylinderHeight);
+
+                    // 윗면 채우기 및 테두리 (조금 더 밝게 표현)
+                    using (SolidBrush topBrush = new SolidBrush(Color.FromArgb(opacity + 20, 168, 85, 247)))
+                    {
+                        pe.Graphics.FillEllipse(topBrush, -pixelRange, -pixelRange, pixelRange * 2, pixelRange * 2);
+                        pe.Graphics.DrawEllipse(borderPen, -pixelRange, -pixelRange, pixelRange * 2, pixelRange * 2);
+                    }
                 }
 
                 pe.Graphics.RotateTransform(mainAngle);  // e.ketcode 키보드 입력값에 따라 방향 회전
                 pe.Graphics.DrawImage(main, -main.Width / 2f, -main.Height / 2f); // 이미지의 중심을 (cx, cy)에 맞춤
                 pe.Graphics.ResetTransform();   // 지도가 삐뚤어지기 전으로 회복
-
-                // 3. 제거한 기체 점수(Score) 화면 좌측 상단에 렌더링
-                label2.Text = $"Count: {Score}";
             };
         }
 
@@ -386,23 +422,29 @@ namespace Moble_Proj01.Form
 
             List<string> toRemoveKeys = new List<string>();
 
-            // 1. 딕셔너리에 저장된 비행기 좌표 중 위도/경도 오차가 0.3도 미만인 기체 검색
-            foreach (var kvp in flight_Dict)
+            // 1. 충돌 영역 사각형 설정
+            RTreeRect searchRect = new RTreeRect(mainLat - range, mainLat + range, mainLng - range, mainLng + range);
+
+            // 2. 이미 구축되어 있는 전역 R-Tree에서 영역 내 후보군 고속 필터링 (주소 참조)
+            List<DTO_flight> candidateFlights = new List<DTO_flight>();
+            rtreeRoot.Query(searchRect, candidateFlights);
+
+            foreach (var flight in candidateFlights)
             {
-                var flight = kvp.Value;
                 if (Math.Abs(flight.Latitude - mainLat) < range && Math.Abs(flight.Longitude - mainLng) < range)
                 {
-                    toRemoveKeys.Add(kvp.Key);
+                    toRemoveKeys.Add(flight.icao24);
                 }
             }
 
             // 2. 충돌한 기체가 없으면 즉시 종료 (얼리 리턴으로 연산 낭비 차단)
             if (toRemoveKeys.Count == 0) return;
 
-            // 3. 일치하는 기체 제거 및 점수 누적
+            // 3. 일치하는 기체 제거, 블랙리스트 등록 및 점수 누적
             foreach (var key in toRemoveKeys)
             {
                 flight_Dict.Remove(key);
+                destroyedFlights.Add(key); // icao24 고유 키를 블랙리스트에 등록하여 영구 제외
             }
             Score += toRemoveKeys.Count; //  프로퍼티 호출 score 누적 
 
@@ -474,5 +516,128 @@ namespace Moble_Proj01.Form
         }
     }
 
+
+    /// <summary>
+    /// R-Tree에서 사용할 경량 2차원 사각형 구조체
+    /// </summary>
+    public struct RTreeRect
+    {
+        public double MinLat;
+        public double MaxLat;
+        public double MinLng;
+        public double MaxLng;
+
+        public RTreeRect(double minLat, double maxLat, double minLng, double maxLng)
+        {
+            MinLat = minLat;
+            MaxLat = maxLat;
+            MinLng = minLng;
+            MaxLng = maxLng;
+        }
+
+        // 특정 좌표가 사각형 영역 내에 있는지 검사
+        public bool Contains(double lat, double lng)
+        {
+            return lat >= MinLat && lat <= MaxLat && lng >= MinLng && lng <= MaxLng;
+        }
+
+        // 다른 사각형 영역과 교차(겹침)하는지 검사
+        public bool Intersects(RTreeRect other)
+        {
+            return !(MinLat > other.MaxLat || MaxLat < other.MinLat ||
+                     MinLng > other.MaxLng || MaxLng < other.MinLng);
+        }
+    }
+
+    /// <summary>
+    /// 간이 공간 인덱싱을 위한 R-Tree 노드 클래스
+    /// </summary>
+    public class RTreeNode
+    {
+        public RTreeRect Boundary { get; private set; }
+        public List<DTO_flight> Flights { get; } = new List<DTO_flight>();
+        public List<RTreeNode> Children { get; } = new List<RTreeNode>();
+        public bool IsLeaf => Children.Count == 0;
+
+        public RTreeNode(RTreeRect boundary)
+        {
+            Boundary = boundary;
+        }
+
+        // 노드에 비행기 데이터 삽입 및 자식 분할 관리
+        public void Insert(DTO_flight flight, int maxCapacity = 4)
+        {
+            if (!Boundary.Contains(flight.Latitude, flight.Longitude)) return;
+
+            if (IsLeaf)
+            {
+                Flights.Add(flight);
+                if (Flights.Count > maxCapacity)
+                {
+                    SplitNode();
+                }
+            }
+            else
+            {
+                foreach (var child in Children)
+                {
+                    if (child.Boundary.Contains(flight.Latitude, flight.Longitude))
+                    {
+                        child.Insert(flight, maxCapacity);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // 노드 4분할 (쿼드분할 기반의 R-Tree 노드 빌드)
+        private void SplitNode()
+        {
+            double midLat = (Boundary.MinLat + Boundary.MaxLat) / 2.0;
+            double midLng = (Boundary.MinLng + Boundary.MaxLng) / 2.0;
+
+            Children.Add(new RTreeNode(new RTreeRect(midLat, Boundary.MaxLat, Boundary.MinLng, midLng))); // NW
+            Children.Add(new RTreeNode(new RTreeRect(midLat, Boundary.MaxLat, midLng, Boundary.MaxLng))); // NE
+            Children.Add(new RTreeNode(new RTreeRect(Boundary.MinLat, midLat, Boundary.MinLng, midLng))); // SW
+            Children.Add(new RTreeNode(new RTreeRect(Boundary.MinLat, midLat, midLng, Boundary.MaxLng))); // SE
+
+            foreach (var flight in Flights)
+            {
+                foreach (var child in Children)
+                {
+                    if (child.Boundary.Contains(flight.Latitude, flight.Longitude))
+                    {
+                        child.Insert(flight);
+                        break;
+                    }
+                }
+            }
+            Flights.Clear();
+        }
+
+        // 범위 내의 비행기 리스트 검색 및 수집
+        public void Query(RTreeRect searchArea, List<DTO_flight> results)
+        {
+            if (!Boundary.Intersects(searchArea)) return;
+
+            if (IsLeaf)
+            {
+                foreach (var flight in Flights)
+                {
+                    if (searchArea.Contains(flight.Latitude, flight.Longitude))
+                    {
+                        results.Add(flight);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var child in Children)
+                {
+                    child.Query(searchArea, results);
+                }
+            }
+        }
+    }
 
 }
